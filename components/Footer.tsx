@@ -9,7 +9,7 @@ export default function Footer() {
             <span className="gradient-text">AutoCraft</span> Agency
           </h3>
           <p className="text-gray-600 mb-4">Smart automation solutions for modern businesses.</p>
-          <p className="text-gray-500">&copy; 2024 AutoCraft Agency. All rights reserved.</p>
+          <p className="text-gray-500">&copy; 2026 AutoCraft Agency. All rights reserved.</p>
         </div>
       </div>
     </footer>
