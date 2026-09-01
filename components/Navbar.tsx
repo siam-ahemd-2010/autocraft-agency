@@ -117,13 +117,6 @@ export default function Navbar() {
             >
               FAQ
             </a>
-            <Link 
-              href="/dashboard" 
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="text-lg font-bold text-orange-600 hover:text-orange-500 transition-colors"
-            >
-              Dashboard
-            </Link>
           </div>
         </div>
 
