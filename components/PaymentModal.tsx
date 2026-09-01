@@ -20,7 +20,6 @@ export default function PaymentModal({ isOpen, onClose, serviceName }: PaymentMo
     plan: serviceName || '',
   })
 
-  // Props থেকে serviceName আপডেট হলে স্টেট আপডেট করা
   useEffect(() => {
     setMounted(true)
     setFormData((prev) => ({ ...prev, plan: serviceName || '' }))
@@ -32,18 +31,17 @@ export default function PaymentModal({ isOpen, onClose, serviceName }: PaymentMo
     e.preventDefault()
     setLoading(true)
 
+    // Google Sheet-এর Column Name-এর সাথে হুবহু মিল রেখে Key সাজানো হয়েছে
     const newLead = {
-      id: Date.now().toString(),
-      name: formData.name,
-      email: formData.email,
-      phone: formData.phone,
-      trxId: formData.trxId,
-      plan: formData.plan || serviceName || 'General Service',
-      date: new Date().toLocaleString(),
+      ID: Date.now().toString(),
+      Name: formData.name,
+      Email: formData.email,
+      Phone: formData.phone,
+      TRXID: formData.trxId,
+      PLAN: formData.plan || serviceName || 'General Service',
     }
 
     try {
-      // ⚠️ এখানে আপনার SheetDB API URL টি বসাবেন
       const response = await fetch('https://sheetdb.io/api/v1/xvgsvquvkg2nv', {
         method: 'POST',
         headers: {
@@ -127,7 +125,6 @@ export default function PaymentModal({ isOpen, onClose, serviceName }: PaymentMo
             />
           </div>
 
-          {/* New Plan Input Box */}
           <div>
             <label className="block text-xs font-bold text-gray-700 uppercase mb-1">Selected Plan</label>
             <input
