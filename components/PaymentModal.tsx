@@ -11,42 +11,65 @@ interface PaymentModalProps {
 
 export default function PaymentModal({ isOpen, onClose, serviceName }: PaymentModalProps) {
   const [mounted, setMounted] = useState(false)
+  const [loading, setLoading] = useState(false)
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     phone: '',
     trxId: '',
+    plan: serviceName || '',
   })
 
-  // Next.js (SSR) এ Hydration Error ঠেকানোর জন্য
+  // Props থেকে serviceName আপডেট হলে স্টেট আপডেট করা
   useEffect(() => {
     setMounted(true)
-  }, [])
+    setFormData((prev) => ({ ...prev, plan: serviceName || '' }))
+  }, [serviceName])
 
   if (!isOpen || !mounted) return null
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setLoading(true)
 
     const newLead = {
       id: Date.now().toString(),
-      ...formData,
-      plan: serviceName || 'General Service',
-      status: 'Pending',
+      name: formData.name,
+      email: formData.email,
+      phone: formData.phone,
+      trxId: formData.trxId,
+      plan: formData.plan || serviceName || 'General Service',
       date: new Date().toLocaleString(),
     }
 
-    // ব্রাউজারে ডেটা সেভ করা
-    const existingLeads = JSON.parse(localStorage.getItem('autocraft_leads') || '[]')
-    const updatedLeads = [newLead, ...existingLeads]
-    localStorage.setItem('autocraft_leads', JSON.stringify(updatedLeads))
+    try {
+      // ⚠️ এখানে আপনার SheetDB API URL টি বসাবেন
+      const response = await fetch('https://sheetdb.io/api/v1/xvgsvquvkg2nv', {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          data: [newLead]
+        }),
+      })
 
-    alert('পেমেন্ট ইনফরমেশন সফলভাবে জমা হয়েছে!')
-    setFormData({ name: '', email: '', phone: '', trxId: '' })
-    onClose()
+      if (response.ok) {
+        alert('পেমেন্ট ইনফরমেশন সফলভাবে জমা হয়েছে!')
+        setFormData({ name: '', email: '', phone: '', trxId: '', plan: '' })
+        onClose()
+      } else {
+        alert('কোথাও কোনো সমস্যা হয়েছে, আবার চেষ্টা করুন।')
+      }
+    } catch (error) {
+      console.error('Error submitting form:', error)
+      alert('নেটওয়ার্ক সমস্যা! পরে আবার চেষ্টা করুন।')
+    } finally {
+      setLoading(false)
+    }
   }
 
-  // createPortal এর মাধ্যমে পপআপটি সরাসরি document.body তে রেন্ডার হবে
   return createPortal(
     <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto">
       <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl relative z-[100000] my-auto">
@@ -104,12 +127,26 @@ export default function PaymentModal({ isOpen, onClose, serviceName }: PaymentMo
             />
           </div>
 
+          {/* New Plan Input Box */}
+          <div>
+            <label className="block text-xs font-bold text-gray-700 uppercase mb-1">Selected Plan</label>
+            <input
+              type="text"
+              required
+              value={formData.plan}
+              onChange={(e) => setFormData({ ...formData, plan: e.target.value })}
+              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:border-orange-500 text-sm text-gray-900 bg-gray-50"
+              placeholder="e.g. Message Auto Reply / Basic Plan"
+            />
+          </div>
+
           <button
             type="submit"
-            className="w-full py-4 mt-2 rounded-xl text-white font-bold text-base shadow-lg cursor-pointer transition-all active:scale-95"
+            disabled={loading}
+            className="w-full py-4 mt-2 rounded-xl text-white font-bold text-base shadow-lg cursor-pointer transition-all active:scale-95 disabled:opacity-50"
             style={{ background: 'linear-gradient(to right, #ff6b35, #ff4500)' }}
           >
-            I've Paid
+            {loading ? 'Submitting...' : "I've Paid"}
           </button>
         </form>
       </div>
