@@ -17,6 +17,10 @@ export default function RootLayout({
 
   return (
     <html lang="en">
+      <head>
+        <link rel="icon" href="../public/autocraft.png" sizes="any" />
+        <title>AutoCraft Agency</title>
+      </head>
       <body className="bg-white text-gray-900 antialiased min-h-screen">
         {mounted ? (
           <EntryAnimation>
